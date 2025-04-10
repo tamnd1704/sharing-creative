@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nền tảng Chia sẻ Nội dung</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f9fafb;
+        }
+        .card {
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .upload-form {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+        .upload-form.active {
+            max-height: 1000px;
+        }
+        .thumbnail-preview {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .thumbnail-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+        .thumbnail-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0) 60%, rgba(0,0,0,0.7) 100%);
+        }
+        .btn {
+            transition: all 0.2s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .empty-state {
+            height: 300px;
+        }
+        .loader {
+            border-top-color: #3B82F6;
+            animation: spinner 0.8s linear infinite;
+        }
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .fadeIn {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
+        }
+        .toast-notification {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        .toast-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex flex-wrap items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fas fa-cloud-upload-alt text-3xl mr-3"></i>
+                    <h1 class="text-2xl font-bold">Nền tảng Chia sẻ Nội dung</h1>
+                </div>
+                <button id="uploadToggle" class="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg shadow font-medium flex items-center btn">
+                    <i class="fas fa-plus mr-2"></i> Tạo nội dung mới
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="container mx-auto px-4 py-6">
+        <!-- Upload Form -->
+        <div id="uploadFormContainer" class="upload-form bg-white rounded-xl shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800 border-b pb-2">Đăng tải nội dung mới</h2>
+            <form id="uploadForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div>
+                        <label for="uploaderName" class="block text-sm font-medium text-gray-700 mb-1">Tên người đăng tải <span class="text-red-500">*</span></label>
+                        <input type="text" id="uploaderName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Nhập tên của bạn">
+                    </div>
+                    
+                    <div>
+                        <label for="demoLink" class="block text-sm font-medium text-gray-700 mb-1">Link demo (nếu có)</label>
+                        <input type="url" id="demoLink" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="https://example.com">
+                    </div>
+                    
+                    <div>
+                        <label for="attachmentFile" class="block text-sm font-medium text-gray-700 mb-1">File đính kèm <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <input type="file" id="attachmentFile" required class="hidden">
+                            <label for="attachmentFile" class="flex items-center justify-center w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                                <i class="fas fa-file-upload mr-2 text-gray-500"></i>
+                                <span id="attachmentFileName" class="text-gray-500">Chọn file...</span>
+                            </label>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Hỗ trợ các định dạng: .txt, .json, .zip, .csv, v.v.</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Ảnh thumbnail <span class="text-red-500">*</span></label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors" id="thumbnailDropzone">
+                            <input type="file" id="thumbnailFile" accept=".jpg,.jpeg,.png" required class="hidden">
+                            <div id="thumbnailPlaceholder">
+                                <i class="fas fa-image text-4xl text-gray-400 mb-2"></i>
+                                <p class="text-sm text-gray-500">Kéo thả hoặc nhấp để chọn ảnh</p>
+                                <p class="text-xs text-gray-400 mt-1">Định dạng: .jpg, .png</p>
+                            </div>
+                            <div id="thumbnailPreviewContainer" class="hidden">
+                                <img id="thumbnailPreview" class="mx-auto max-h-32 rounded">
+                                <button type="button" id="removeThumbnail" class="mt-2 text-sm text-red-500 hover:text-red-700">
+                                    <i class="fas fa-times mr-1"></i> Xóa ảnh
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 mt-auto">
+                        <button type="submit" id="submitUpload" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg shadow btn flex items-center justify-center">
+                            <i class="fas fa-cloud-upload-alt mr-2"></i> Đăng tải
+                            <div id="uploadLoader" class="hidden ml-2 w-4 h-4 rounded-full border-2 border-white border-t-transparent loader"></div>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Filter and search bar -->
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+            <div class="relative w-full sm:w-64">
+                <input type="text" id="searchInput" placeholder="Tìm kiếm..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+                <select id="sortOption" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors">
+                    <option value="newest">Mới nhất</option>
+                    <option value="oldest">Cũ nhất</option>
+                    <option value="name">Theo tên</option>
+                </select>
+                <button id="refreshButton" class="p-2 text-gray-600 hover:text-blue-600 transition-colors rounded-lg">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Content cards -->
+        <div id="contentCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        
+        <!-- Empty state -->
+        <div id="emptyState" class="hidden text-center empty-state flex flex-col items-center justify-center">
+            <i class="far fa-folder-open text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-xl font-medium text-gray-500 mb-2">Chưa có nội dung nào</h3>
+            <p class="text-gray-400 mb-4">Hãy bắt đầu bằng cách tải lên nội dung đầu tiên của bạn</p>
+            <button id="emptyStateUploadBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow btn">
+                <i class="fas fa-plus mr-2"></i> Tạo nội dung mới
+            </button>
+        </div>
+        
+        <!-- Loading state -->
+        <div id="loadingState" class="hidden text-center empty-state flex flex-col items-center justify-center">
+            <div class="w-16 h-16 border-4 border-gray-200 border-t-blue-600 rounded-full loader mb-4"></div>
+            <p class="text-gray-500">Đang tải nội dung...</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 mt-12">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <h2 class="text-lg font-semibold">Nền tảng Chia sẻ Nội dung</h2>
+                    <p class="text-gray-400 text-sm">Chia sẻ nội dung một cách dễ dàng và chuyên nghiệp</p>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="hover:text-blue-400 transition-colors"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="hover:text-blue-400 transition-colors"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="hover:text-red-400 transition-colors"><i class="fab fa-youtube"></i></a>
+                    <a href="#" class="hover:text-purple-400 transition-colors"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-4 pt-4 text-center text-gray-400 text-sm">
+                &copy; 2023 Nền tảng Chia sẻ Nội dung. Tất cả các quyền được bảo lưu.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast notification -->
+    <div id="toast" class="toast-notification bg-white shadow-lg rounded-lg p-4 max-w-md flex items-center">
+        <div id="toastIcon" class="flex-shrink-0 mr-3 text-center">
+            <i class="fas fa-check-circle text-green-500 text-xl"></i>
+        </div>
+        <div class="flex-grow">
+            <h4 id="toastTitle" class="font-medium text-gray-800">Thành công!</h4>
+            <p id="toastMessage" class="text-sm text-gray-600">Thao tác đã được thực hiện thành công.</p>
+        </div>
+        <button id="toastClose" class="ml-4 text-gray-400 hover:text-gray-600">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <!-- Confirmation modal -->
+    <div id="confirmModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-gray-900 bg-opacity-50">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md mx-4 animate__animated animate__fadeInDown">
+            <div class="text-center mb-4">
+                <i class="fas fa-exclamation-triangle text-yellow-500 text-4xl mb-4"></i>
+                <h3 class="text-xl font-bold text-gray-800">Xác nhận xóa</h3>
+                <p class="text-gray-600 mt-2">Bạn có chắc chắn muốn xóa nội dung này? Hành động này không thể hoàn tác.</p>
+            </div>
+            <div class="flex justify-center gap-4 mt-6">
+                <button id="cancelDelete" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors">
+                    Hủy bỏ
+                </button>
+                <button id="confirmDelete" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">
+                    Xóa
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM elements
+            const uploadToggle = document.getElementById('uploadToggle');
+            const emptyStateUploadBtn = document.getElementById('emptyStateUploadBtn');
+            const uploadFormContainer = document.getElementById('uploadFormContainer');
+            const uploadForm = document.getElementById('uploadForm');
+            const thumbnailDropzone = document.getElementById('thumbnailDropzone');
+            const thumbnailFile = document.getElementById('thumbnailFile');
+            const thumbnailPreview = document.getElementById('thumbnailPreview');
+            const thumbnailPreviewContainer = document.getElementById('thumbnailPreviewContainer');
+            const thumbnailPlaceholder = document.getElementById('thumbnailPlaceholder');
+            const removeThumbnail = document.getElementById('removeThumbnail');
+            const attachmentFile = document.getElementById('attachmentFile');
+            const attachmentFileName = document.getElementById('attachmentFileName');
+            const contentCards = document.getElementById('contentCards');
+            const emptyState = document.getElementById('emptyState');
+            const loadingState = document.getElementById('loadingState');
+            const searchInput = document.getElementById('searchInput');
+            const sortOption = document.getElementById('sortOption');
+            const refreshButton = document.getElementById('refreshButton');
+            const toast = document.getElementById('toast');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastClose = document.getElementById('toastClose');
+            const confirmModal = document.getElementById('confirmModal');
+            const cancelDelete = document.getElementById('cancelDelete');
+            const confirmDelete = document.getElementById('confirmDelete');
+            const submitUpload = document.getElementById('submitUpload');
+            const uploadLoader = document.getElementById('uploadLoader');
+
+            // Toggle upload form
+            function toggleUploadForm() {
+                uploadFormContainer.classList.toggle('active');
+                if (uploadFormContainer.classList.contains('active')) {
+                    uploadFormContainer.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+
+            uploadToggle.addEventListener('click', toggleUploadForm);
+            emptyStateUploadBtn.addEventListener('click', function() {
+                if (!uploadFormContainer.classList.contains('active')) {
+                    toggleUploadForm();
+                }
+            });
+
+            // Thumbnail handling
+            thumbnailDropzone.addEventListener('click', function() {
+                thumbnailFile.click();
+            });
+
+            thumbnailDropzone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                thumbnailDropzone.classList.add('border-blue-500', 'bg-blue-50');
+            });
+
+            thumbnailDropzone.addEventListener('dragleave', function() {
+                thumbnailDropzone.classList.remove('border-blue-500', 'bg-blue-50');
+            });
+
+            thumbnailDropzone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                thumbnailDropzone.classList.remove('border-blue-500', 'bg-blue-50');
+                
+                if (e.dataTransfer.files.length > 0) {
+                    const file = e.dataTransfer.files[0];
+                    if (file.type.match('image.*')) {
+                        thumbnailFile.files = e.dataTransfer.files;
+                        displayThumbnailPreview(file);
+                    } else {
+                        showToast('Lỗi', 'Chỉ cho phép file hình ảnh', 'error');
+                    }
+                }
+            });
+
+            thumbnailFile.addEventListener('change', function() {
+                if (thumbnailFile.files.length > 0) {
+                    displayThumbnailPreview(thumbnailFile.files[0]);
+                }
+            });
+
+            removeThumbnail.addEventListener('click', function() {
+                thumbnailFile.value = '';
+                thumbnailPreviewContainer.classList.add('hidden');
+                thumbnailPlaceholder.classList.remove('hidden');
+            });
+
+            function displayThumbnailPreview(file) {
+                if (file.type.match('image.*')) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        thumbnailPreview.src = e.target.result;
+                        thumbnailPreviewContainer.classList.remove('hidden');
+                        thumbnailPlaceholder.classList.add('hidden');
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            // Attachment file handling
+            attachmentFile.addEventListener('change', function() {
+                if (attachmentFile.files.length > 0) {
+                    attachmentFileName.textContent = attachmentFile.files[0].name;
+                } else {
+                    attachmentFileName.textContent = 'Chọn file...';
+                }
+            });
+
+            // Data handling
+            let contentItems = JSON.parse(localStorage.getItem('contentItems')) || [];
+            let currentItemToDelete = null;
+
+            // Upload form submission
+            uploadForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Show loader
+                submitUpload.disabled = true;
+                uploadLoader.classList.remove('hidden');
+                
+                // Collect form data
+                const uploaderName = document.getElementById('uploaderName').value;
+                const demoLink = document.getElementById('demoLink').value;
+                
+                // Handle files
+                const thumbnailFileObj = thumbnailFile.files[0];
+                const attachmentFileObj = attachmentFile.files[0];
+                
+                // Convert files to base64
+                const thumbnailReader = new FileReader();
+                const attachmentReader = new FileReader();
+                
+                thumbnailReader.onload = function(e) {
+                    const thumbnailBase64 = e.target.result;
+                    
+                    attachmentReader.onload = function(e) {
+                        const attachmentBase64 = e.target.result;
+                        
+                        // Create content item
+                        const newItem = {
+                            id: Date.now().toString(),
+                            uploaderName: uploaderName,
+                            thumbnail: thumbnailBase64,
+                            demoLink: demoLink,
+                            attachment: {
+                                name: attachmentFileObj.name,
+                                type: attachmentFileObj.type,
+                                data: attachmentBase64
+                            },
+                            uploadTime: new Date().toISOString()
+                        };
+                        
+                        // Add to content items
+                        contentItems.unshift(newItem);
+                        localStorage.setItem('contentItems', JSON.stringify(contentItems));
+                        
+                        // Reset form
+                        uploadForm.reset();
+                        attachmentFileName.textContent = 'Chọn file...';
+                        removeThumbnail.click();
+                        
+                        // Update display
+                        renderContentItems();
+                        
+                        // Toggle form
+                        toggleUploadForm();
+                        
+                        // Show success notification
+                        showToast('Thành công', 'Nội dung đã được đăng tải', 'success');
+                        
+                        // Hide loader
+                        submitUpload.disabled = false;
+                        uploadLoader.classList.add('hidden');
+                    };
+                    
+                    attachmentReader.readAsDataURL(attachmentFileObj);
+                };
+                
+                thumbnailReader.readAsDataURL(thumbnailFileObj);
+            });
+
+            // Render content items
+            function renderContentItems() {
+                // Apply filter if search input has value
+                let filteredItems = contentItems;
+                const searchTerm = searchInput.value.toLowerCase();
+                
+                if (searchTerm) {
+                    filteredItems = contentItems.filter(item => 
+                        item.uploaderName.toLowerCase().includes(searchTerm) ||
+                        item.attachment.name.toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                // Apply sorting
+                const sortBy = sortOption.value;
+                
+                if (sortBy === 'newest') {
+                    filteredItems.sort((a, b) => new Date(b.uploadTime) - new Date(a.uploadTime));
+                } else if (sortBy === 'oldest') {
+                    filteredItems.sort((a, b) => new Date(a.uploadTime) - new Date(b.uploadTime));
+                } else if (sortBy === 'name') {
+                    filteredItems.sort((a, b) => a.uploaderName.localeCompare(b.uploaderName));
+                }
+                
+                // Clear content area
+                contentCards.innerHTML = '';
+                
+                // Show appropriate state
+                if (contentItems.length === 0) {
+                    emptyState.classList.remove('hidden');
+                    contentCards.classList.add('hidden');
+                } else if (filteredItems.length === 0) {
+                    contentCards.innerHTML = `
+                        <div class="col-span-full text-center py-12">
+                            <i class="fas fa-search text-4xl text-gray-300 mb-3"></i>
+                            <h3 class="text-lg font-medium text-gray-500">Không tìm thấy kết quả phù hợp</h3>
+                            <p class="text-gray-400">Hãy thử tìm kiếm với từ khóa khác</p>
+                        </div>
+                    `;
+                    emptyState.classList.add('hidden');
+                    contentCards.classList.remove('hidden');
+                } else {
+                    emptyState.classList.add('hidden');
+                    contentCards.classList.remove('hidden');
+                    
+                    // Render each content item
+                    filteredItems.forEach((item, index) => {
+                        const card = document.createElement('div');
+                        card.className = 'card bg-white rounded-xl shadow-md overflow-hidden fadeIn';
+                        card.style.animationDelay = `${index * 0.05}s`;
+                        
+                        const uploadDate = new Date(item.uploadTime);
+                        const formattedDate = uploadDate.toLocaleDateString('vi-VN', { 
+                            day: '2-digit', 
+                            month: '2-digit', 
+                            year: 'numeric'
+                        });
+                        
+                        card.innerHTML = `
+                            <div class="thumbnail-container">
+                                <img src="${item.thumbnail}" alt="Thumbnail" class="thumbnail-preview">
+                                <div class="thumbnail-overlay"></div>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h3 class="font-semibold text-gray-800 truncate">${item.attachment.name}</h3>
+                                    <span class="text-xs bg-blue-100 text-blue-800 rounded-full px-2 py-1">${getFileTypeLabel(item.attachment.type)}</span>
+                                </div>
+                                <div class="flex items-center text-gray-500 text-sm mb-4">
+                                    <i class="fas fa-user mr-2"></i>
+                                    <span>${item.uploaderName}</span>
+                                    <span class="mx-2">•</span>
+                                    <i class="far fa-calendar-alt mr-2"></i>
+                                    <span>${formattedDate}</span>
+                                </div>
+                                
+                                <div class="flex flex-wrap gap-2 mt-4">
+                                    <button class="btn download-btn flex-1 bg-blue-100 hover:bg-blue-200 text-blue-800 py-2 px-3 rounded-lg text-sm font-medium" data-id="${item.id}">
+                                        <i class="fas fa-download mr-1"></i> Tải về
+                                    </button>
+                                    ${item.demoLink ? `
+                                        <a href="${item.demoLink}" target="_blank" class="btn flex-1 bg-purple-100 hover:bg-purple-200 text-purple-800 py-2 px-3 rounded-lg text-sm font-medium text-center">
+                                            <i class="fas fa-link mr-1"></i> Xem demo
+                                        </a>
+                                    ` : ''}
+                                    <button class="btn delete-btn bg-red-100 hover:bg-red-200 text-red-800 py-2 px-3 rounded-lg text-sm font-medium" data-id="${item.id}">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        
+                        contentCards.appendChild(card);
+                    });
+                    
+                    // Add event listeners for dynamic buttons
+                    document.querySelectorAll('.download-btn').forEach(btn => {
+                        btn.addEventListener('click', handleDownload);
+                    });
+                    
+                    document.querySelectorAll('.delete-btn').forEach(btn => {
+                        btn.addEventListener('click', handleDelete);
+                    });
+                }
+            }
+
+            // Download functionality
+            function handleDownload() {
+                const itemId = this.getAttribute('data-id');
+                const item = contentItems.find(x => x.id === itemId);
+                
+                if (item) {
+                    // Create download link
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = item.attachment.data;
+                    downloadLink.download = item.attachment.name;
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                    
+                    showToast('Tải xuống', 'Đang tải xuống file', 'info');
+                }
+            }
+
+            // Delete functionality
+            function handleDelete() {
+                const itemId = this.getAttribute('data-id');
+                currentItemToDelete = itemId;
+                
+                // Show confirmation modal
+                confirmModal.classList.remove('hidden');
+            }
+
+            // Confirm delete
+            confirmDelete.addEventListener('click', function() {
+                if (currentItemToDelete) {
+                    // Remove item from array
+                    contentItems = contentItems.filter(item => item.id !== currentItemToDelete);
+                    
+                    // Update localStorage
+                    localStorage.setItem('contentItems', JSON.stringify(contentItems));
+                    
+                    // Update display
+                    renderContentItems();
+                    
+                    // Hide modal
+                    confirmModal.classList.add('hidden');
+                    
+                    // Show success notification
+                    showToast('Đã xóa', 'Nội dung đã được xóa thành công', 'success');
+                    
+                    // Reset current item
+                    currentItemToDelete = null;
+                }
+            });
+
+            // Cancel delete
+            cancelDelete.addEventListener('click', function() {
+                confirmModal.classList.add('hidden');
+                currentItemToDelete = null;
+            });
+
+            // Click outside modal to close
+            confirmModal.addEventListener('click', function(e) {
+                if (e.target === confirmModal) {
+                    confirmModal.classList.add('hidden');
+                    currentItemToDelete = null;
+                }
+            });
+
+            // Search functionality
+            searchInput.addEventListener('input', debounce(function() {
+                renderContentItems();
+            }, 300));
+
+            // Sort functionality
+            sortOption.addEventListener('change', function() {
+                renderContentItems();
+            });
+
+            // Refresh button
+            refreshButton.addEventListener('click', function() {
+                this.classList.add('animate-spin');
+                setTimeout(() => {
+                    this.classList.remove('animate-spin');
+                    renderContentItems();
+                }, 500);
+            });
+
+            // Toast notification
+            function showToast(title, message, type = 'success') {
+                // Set icon based on type
+                let iconClass = 'fa-check-circle text-green-500';
+                if (type === 'error') {
+                    iconClass = 'fa-exclamation-circle text-red-500';
+                } else if (type === 'info') {
+                    iconClass = 'fa-info-circle text-blue-500';
+                } else if (type === 'warning') {
+                    iconClass = 'fa-exclamation-triangle text-yellow-500';
+                }
+                
+                toastIcon.innerHTML = `<i class="fas ${iconClass} text-xl"></i>`;
+                toastTitle.textContent = title;
+                toastMessage.textContent = message;
+                
+                // Show toast
+                toast.classList.add('show');
+                
+                // Auto hide after 3 seconds
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+
+            // Close toast
+            toastClose.addEventListener('click', function() {
+                toast.classList.remove('show');
+            });
+
+            // Helper function for file type label
+            function getFileTypeLabel(mimeType) {
+                if (mimeType.includes('image')) {
+                    return 'Hình ảnh';
+                } else if (mimeType.includes('text')) {
+                    return 'Văn bản';
+                } else if (mimeType.includes('application/json')) {
+                    return 'JSON';
+                } else if (mimeType.includes('application/zip')) {
+                    return 'ZIP';
+                } else if (mimeType.includes('application/pdf')) {
+                    return 'PDF';
+                } else if (mimeType.includes('application/vnd.ms-excel') || mimeType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml')) {
+                    return 'Excel';
+                } else if (mimeType.includes('video')) {
+                    return 'Video';
+                } else if (mimeType.includes('audio')) {
+                    return 'Audio';
+                } else {
+                    return 'File';
+                }
+            }
+
+            // Debounce function
+            function debounce(func, wait) {
+                let timeout;
+                return function() {
+                    const context = this;
+                    const args = arguments;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(function() {
+                        func.apply(context, args);
+                    }, wait);
+                };
+            }
+
+            // Initialize
+            renderContentItems();
+        });
+    </script>
+</body>
+</html>
