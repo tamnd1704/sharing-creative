@@ -102,10 +102,13 @@
             opacity: 1;
         }
     </style>
-<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js"></script>
+<!-- Firebase CDN SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage-compat.js"></script>
+
 <script>
+  // Cấu hình Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyD87j3wuUiUpoO5wuE_o0rezNGsYZ3Sn4E",
     authDomain: "sharing-file-57833.firebaseapp.com",
@@ -115,7 +118,7 @@
     appId: "1:68012015480:web:256e949001a6f6cd61928d"
   };
 
-  // Khởi tạo Firebase
+  // Khởi tạo Firebase với SDK compat
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
   const storage = firebase.storage();
