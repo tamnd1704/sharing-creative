@@ -1,14 +1,15 @@
 <!DOCTYPE html>
+
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nền tảng Chia sẻ Nội dung</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nền tảng Chia sẻ Nội dung</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
         body {
             font-family: 'Montserrat', sans-serif;
             background-color: #f9fafb;
@@ -104,7 +105,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js"></script>
-
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyD87j3wuUiUpoO5wuE_o0rezNGsYZ3Sn4E",
@@ -122,173 +122,160 @@
 </script>
 </head>
 <body class="min-h-screen">
-    <!-- Header -->
-    <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg">
-        <div class="container mx-auto px-4 py-6">
-            <div class="flex flex-wrap items-center justify-between">
-                <div class="flex items-center">
-                    <i class="fas fa-cloud-upload-alt text-3xl mr-3"></i>
-                    <h1 class="text-2xl font-bold">Nền tảng Chia sẻ Nội dung</h1>
-                </div>
-                <button id="uploadToggle" class="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg shadow font-medium flex items-center btn">
-                    <i class="fas fa-plus mr-2"></i> Tạo nội dung mới
+<!-- Header -->
+<header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg">
+<div class="container mx-auto px-4 py-6">
+<div class="flex flex-wrap items-center justify-between">
+<div class="flex items-center">
+<i class="fas fa-cloud-upload-alt text-3xl mr-3"></i>
+<h1 class="text-2xl font-bold">Nền tảng Chia sẻ Nội dung</h1>
+</div>
+<button class="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg shadow font-medium flex items-center btn" id="uploadToggle">
+<i class="fas fa-plus mr-2"></i> Tạo nội dung mới
                 </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main content -->
-    <main class="container mx-auto px-4 py-6">
-        <!-- Upload Form -->
-        <div id="uploadFormContainer" class="upload-form bg-white rounded-xl shadow-md p-6 mb-8">
-            <h2 class="text-xl font-semibold mb-4 text-gray-800 border-b pb-2">Đăng tải nội dung mới</h2>
-            <form id="uploadForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-4">
-                    <div>
-                        <label for="uploaderName" class="block text-sm font-medium text-gray-700 mb-1">Tên người đăng tải <span class="text-red-500">*</span></label>
-                        <input type="text" id="uploaderName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Nhập tên của bạn">
-                    </div>
-                    
-                    <div>
-                        <label for="demoLink" class="block text-sm font-medium text-gray-700 mb-1">Link demo (nếu có)</label>
-                        <input type="url" id="demoLink" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="https://example.com">
-                    </div>
-                    
-                    <div>
-                        <label for="attachmentFile" class="block text-sm font-medium text-gray-700 mb-1">File đính kèm <span class="text-red-500">*</span></label>
-                        <div class="relative">
-                            <input type="file" id="attachmentFile" required class="hidden">
-                            <label for="attachmentFile" class="flex items-center justify-center w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
-                                <i class="fas fa-file-upload mr-2 text-gray-500"></i>
-                                <span id="attachmentFileName" class="text-gray-500">Chọn file...</span>
-                            </label>
-                        </div>
-                        <p class="text-xs text-gray-500 mt-1">Hỗ trợ các định dạng: .txt, .json, .zip, .csv, v.v.</p>
-                    </div>
-                </div>
-
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Ảnh thumbnail <span class="text-red-500">*</span></label>
-                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors" id="thumbnailDropzone">
-                            <input type="file" id="thumbnailFile" accept=".jpg,.jpeg,.png" required class="hidden">
-                            <div id="thumbnailPlaceholder">
-                                <i class="fas fa-image text-4xl text-gray-400 mb-2"></i>
-                                <p class="text-sm text-gray-500">Kéo thả hoặc nhấp để chọn ảnh</p>
-                                <p class="text-xs text-gray-400 mt-1">Định dạng: .jpg, .png</p>
-                            </div>
-                            <div id="thumbnailPreviewContainer" class="hidden">
-                                <img id="thumbnailPreview" class="mx-auto max-h-32 rounded">
-                                <button type="button" id="removeThumbnail" class="mt-2 text-sm text-red-500 hover:text-red-700">
-                                    <i class="fas fa-times mr-1"></i> Xóa ảnh
+</div>
+</div>
+</header>
+<!-- Main content -->
+<main class="container mx-auto px-4 py-6">
+<!-- Upload Form -->
+<div class="upload-form bg-white rounded-xl shadow-md p-6 mb-8" id="uploadFormContainer">
+<h2 class="text-xl font-semibold mb-4 text-gray-800 border-b pb-2">Đăng tải nội dung mới</h2>
+<form class="grid grid-cols-1 md:grid-cols-2 gap-6" id="uploadForm">
+<div class="space-y-4">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1" for="uploaderName">Tên người đăng tải <span class="text-red-500">*</span></label>
+<input class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" id="uploaderName" placeholder="Nhập tên của bạn" required="" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1" for="demoLink">Link demo (nếu có)</label>
+<input class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" id="demoLink" placeholder="https://example.com" type="url"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1" for="attachmentFile">File đính kèm <span class="text-red-500">*</span></label>
+<div class="relative">
+<input class="hidden" id="attachmentFile" required="" type="file"/>
+<label class="flex items-center justify-center w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors" for="attachmentFile">
+<i class="fas fa-file-upload mr-2 text-gray-500"></i>
+<span class="text-gray-500" id="attachmentFileName">Chọn file...</span>
+</label>
+</div>
+<p class="text-xs text-gray-500 mt-1">Hỗ trợ các định dạng: .txt, .json, .zip, .csv, v.v.</p>
+</div>
+</div>
+<div class="space-y-4">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Ảnh thumbnail <span class="text-red-500">*</span></label>
+<div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors" id="thumbnailDropzone">
+<input accept=".jpg,.jpeg,.png" class="hidden" id="thumbnailFile" required="" type="file"/>
+<div id="thumbnailPlaceholder">
+<i class="fas fa-image text-4xl text-gray-400 mb-2"></i>
+<p class="text-sm text-gray-500">Kéo thả hoặc nhấp để chọn ảnh</p>
+<p class="text-xs text-gray-400 mt-1">Định dạng: .jpg, .png</p>
+</div>
+<div class="hidden" id="thumbnailPreviewContainer">
+<img class="mx-auto max-h-32 rounded" id="thumbnailPreview"/>
+<button class="mt-2 text-sm text-red-500 hover:text-red-700" id="removeThumbnail" type="button">
+<i class="fas fa-times mr-1"></i> Xóa ảnh
                                 </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="pt-4 mt-auto">
-                        <button type="submit" id="submitUpload" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg shadow btn flex items-center justify-center">
-                            <i class="fas fa-cloud-upload-alt mr-2"></i> Đăng tải
-                            <div id="uploadLoader" class="hidden ml-2 w-4 h-4 rounded-full border-2 border-white border-t-transparent loader"></div>
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <!-- Filter and search bar -->
-        <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-            <div class="relative w-full sm:w-64">
-                <input type="text" id="searchInput" placeholder="Tìm kiếm..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-            </div>
-            <div class="flex items-center gap-2 w-full sm:w-auto">
-                <select id="sortOption" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors">
-                    <option value="newest">Mới nhất</option>
-                    <option value="oldest">Cũ nhất</option>
-                    <option value="name">Theo tên</option>
-                </select>
-                <button id="refreshButton" class="p-2 text-gray-600 hover:text-blue-600 transition-colors rounded-lg">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Content cards -->
-        <div id="contentCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        
-        <!-- Empty state -->
-        <div id="emptyState" class="hidden text-center empty-state flex flex-col items-center justify-center">
-            <i class="far fa-folder-open text-6xl text-gray-300 mb-4"></i>
-            <h3 class="text-xl font-medium text-gray-500 mb-2">Chưa có nội dung nào</h3>
-            <p class="text-gray-400 mb-4">Hãy bắt đầu bằng cách tải lên nội dung đầu tiên của bạn</p>
-            <button id="emptyStateUploadBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow btn">
-                <i class="fas fa-plus mr-2"></i> Tạo nội dung mới
+</div>
+</div>
+</div>
+<div class="pt-4 mt-auto">
+<button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg shadow btn flex items-center justify-center" id="submitUpload" type="submit">
+<i class="fas fa-cloud-upload-alt mr-2"></i> Đăng tải
+                            <div class="hidden ml-2 w-4 h-4 rounded-full border-2 border-white border-t-transparent loader" id="uploadLoader"></div>
+</button>
+</div>
+</div>
+</form>
+</div>
+<!-- Filter and search bar -->
+<div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+<div class="relative w-full sm:w-64">
+<input class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" id="searchInput" placeholder="Tìm kiếm..." type="text"/>
+<i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+</div>
+<div class="flex items-center gap-2 w-full sm:w-auto">
+<select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white transition-colors" id="sortOption">
+<option value="newest">Mới nhất</option>
+<option value="oldest">Cũ nhất</option>
+<option value="name">Theo tên</option>
+</select>
+<button class="p-2 text-gray-600 hover:text-blue-600 transition-colors rounded-lg" id="refreshButton">
+<i class="fas fa-sync-alt"></i>
+</button>
+</div>
+</div>
+<!-- Content cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="contentCards"></div>
+<!-- Empty state -->
+<div class="hidden text-center empty-state flex flex-col items-center justify-center" id="emptyState">
+<i class="far fa-folder-open text-6xl text-gray-300 mb-4"></i>
+<h3 class="text-xl font-medium text-gray-500 mb-2">Chưa có nội dung nào</h3>
+<p class="text-gray-400 mb-4">Hãy bắt đầu bằng cách tải lên nội dung đầu tiên của bạn</p>
+<button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow btn" id="emptyStateUploadBtn">
+<i class="fas fa-plus mr-2"></i> Tạo nội dung mới
             </button>
-        </div>
-        
-        <!-- Loading state -->
-        <div id="loadingState" class="hidden text-center empty-state flex flex-col items-center justify-center">
-            <div class="w-16 h-16 border-4 border-gray-200 border-t-blue-600 rounded-full loader mb-4"></div>
-            <p class="text-gray-500">Đang tải nội dung...</p>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-6 mt-12">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="mb-4 md:mb-0">
-                    <h2 class="text-lg font-semibold">Nền tảng Chia sẻ Nội dung</h2>
-                    <p class="text-gray-400 text-sm">Chia sẻ nội dung một cách dễ dàng và chuyên nghiệp</p>
-                </div>
-                <div class="flex space-x-4">
-                    <a href="#" class="hover:text-blue-400 transition-colors"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="hover:text-blue-400 transition-colors"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="hover:text-red-400 transition-colors"><i class="fab fa-youtube"></i></a>
-                    <a href="#" class="hover:text-purple-400 transition-colors"><i class="fab fa-instagram"></i></a>
-                </div>
+</div>
+<!-- Loading state -->
+<div class="hidden text-center empty-state flex flex-col items-center justify-center" id="loadingState">
+<div class="w-16 h-16 border-4 border-gray-200 border-t-blue-600 rounded-full loader mb-4"></div>
+<p class="text-gray-500">Đang tải nội dung...</p>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-gray-800 text-white py-6 mt-12">
+<div class="container mx-auto px-4">
+<div class="flex flex-col md:flex-row justify-between items-center">
+<div class="mb-4 md:mb-0">
+<h2 class="text-lg font-semibold">Nền tảng Chia sẻ Nội dung</h2>
+<p class="text-gray-400 text-sm">Chia sẻ nội dung một cách dễ dàng và chuyên nghiệp</p>
+</div>
+<div class="flex space-x-4">
+<a class="hover:text-blue-400 transition-colors" href="#"><i class="fab fa-facebook-f"></i></a>
+<a class="hover:text-blue-400 transition-colors" href="#"><i class="fab fa-twitter"></i></a>
+<a class="hover:text-red-400 transition-colors" href="#"><i class="fab fa-youtube"></i></a>
+<a class="hover:text-purple-400 transition-colors" href="#"><i class="fab fa-instagram"></i></a>
+</div>
+</div>
+<div class="border-t border-gray-700 mt-4 pt-4 text-center text-gray-400 text-sm">
+                © 2023 Nền tảng Chia sẻ Nội dung. Tất cả các quyền được bảo lưu.
             </div>
-            <div class="border-t border-gray-700 mt-4 pt-4 text-center text-gray-400 text-sm">
-                &copy; 2023 Nền tảng Chia sẻ Nội dung. Tất cả các quyền được bảo lưu.
-            </div>
-        </div>
-    </footer>
-
-    <!-- Toast notification -->
-    <div id="toast" class="toast-notification bg-white shadow-lg rounded-lg p-4 max-w-md flex items-center">
-        <div id="toastIcon" class="flex-shrink-0 mr-3 text-center">
-            <i class="fas fa-check-circle text-green-500 text-xl"></i>
-        </div>
-        <div class="flex-grow">
-            <h4 id="toastTitle" class="font-medium text-gray-800">Thành công!</h4>
-            <p id="toastMessage" class="text-sm text-gray-600">Thao tác đã được thực hiện thành công.</p>
-        </div>
-        <button id="toastClose" class="ml-4 text-gray-400 hover:text-gray-600">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-
-    <!-- Confirmation modal -->
-    <div id="confirmModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-gray-900 bg-opacity-50">
-        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md mx-4 animate__animated animate__fadeInDown">
-            <div class="text-center mb-4">
-                <i class="fas fa-exclamation-triangle text-yellow-500 text-4xl mb-4"></i>
-                <h3 class="text-xl font-bold text-gray-800">Xác nhận xóa</h3>
-                <p class="text-gray-600 mt-2">Bạn có chắc chắn muốn xóa nội dung này? Hành động này không thể hoàn tác.</p>
-            </div>
-            <div class="flex justify-center gap-4 mt-6">
-                <button id="cancelDelete" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors">
+</div>
+</footer>
+<!-- Toast notification -->
+<div class="toast-notification bg-white shadow-lg rounded-lg p-4 max-w-md flex items-center" id="toast">
+<div class="flex-shrink-0 mr-3 text-center" id="toastIcon">
+<i class="fas fa-check-circle text-green-500 text-xl"></i>
+</div>
+<div class="flex-grow">
+<h4 class="font-medium text-gray-800" id="toastTitle">Thành công!</h4>
+<p class="text-sm text-gray-600" id="toastMessage">Thao tác đã được thực hiện thành công.</p>
+</div>
+<button class="ml-4 text-gray-400 hover:text-gray-600" id="toastClose">
+<i class="fas fa-times"></i>
+</button>
+</div>
+<!-- Confirmation modal -->
+<div class="fixed inset-0 z-50 hidden flex items-center justify-center bg-gray-900 bg-opacity-50" id="confirmModal">
+<div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md mx-4 animate__animated animate__fadeInDown">
+<div class="text-center mb-4">
+<i class="fas fa-exclamation-triangle text-yellow-500 text-4xl mb-4"></i>
+<h3 class="text-xl font-bold text-gray-800">Xác nhận xóa</h3>
+<p class="text-gray-600 mt-2">Bạn có chắc chắn muốn xóa nội dung này? Hành động này không thể hoàn tác.</p>
+</div>
+<div class="flex justify-center gap-4 mt-6">
+<button class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition-colors" id="cancelDelete">
                     Hủy bỏ
                 </button>
-                <button id="confirmDelete" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">
+<button class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors" id="confirmDelete">
                     Xóa
                 </button>
-            </div>
-        </div>
-    </div>
-
-    <script>
+</div>
+</div>
+</div>
+<script>
         document.addEventListener('DOMContentLoaded', function() {
             // DOM elements
             const uploadToggle = document.getElementById('uploadToggle');
@@ -400,7 +387,16 @@
             });
 
             // Data handling
-            let contentItems = JSON.parse(localStorage.getItem('contentItems')) || [];
+            let contentItems = [];
+db.collection("uploads").orderBy("uploadTime", "desc").onSnapshot(snapshot => {
+  contentItems = [];
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    data.id = doc.id;
+    contentItems.push(data);
+  });
+  renderContentItems();
+});
             let currentItemToDelete = null;
 
             // Upload form submission
@@ -445,7 +441,7 @@
                         
                         // Add to content items
                         contentItems.unshift(newItem);
-                        localStorage.setItem('contentItems', JSON.stringify(contentItems));
+                        // Đã xoá localStorage: ghi dữ liệu vào Firestore thay thế
                         
                         // Reset form
                         uploadForm.reset();
@@ -612,7 +608,7 @@
                     contentItems = contentItems.filter(item => item.id !== currentItemToDelete);
                     
                     // Update localStorage
-                    localStorage.setItem('contentItems', JSON.stringify(contentItems));
+                    // Đã xoá localStorage: ghi dữ liệu vào Firestore thay thế
                     
                     // Update display
                     renderContentItems();
