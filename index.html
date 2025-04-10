@@ -730,6 +730,12 @@ db.collection("uploads").orderBy("uploadTime", "desc").onSnapshot(snapshot => {
             renderContentItems();
         });
     </script>
- <script src="firebase.js"></script>
+<script type="module">
+  import { db, storage } from './firebase.js';
+
+  window.db = db;
+  window.storage = storage;
+</script>
+
 </body>
 </html>
